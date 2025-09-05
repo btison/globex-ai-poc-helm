@@ -1,7 +1,7 @@
 amqstreams:
-  applicationName:
-  applicationNamespace:
-  destinationNamespace:
+  applicationName: amqstreams
+  applicationNamespace: openshift-gitops
+  destinationNamespace: kafka
   source:
     repoUrl:
     targetRevision:
@@ -9,13 +9,13 @@ amqstreams:
     helm:
       values:
         kafka:
-          enabled: 
+          enabled: true
         console:
-          enabled: 
+          enabled: true
 
         kafka-broker:
           namespace:
-          nameOverride: 
+          nameOverride: kafka
           kafka:
             controller:
               enabled: true
@@ -29,8 +29,8 @@ amqstreams:
           authentication:
             clientId:
             clientSecret: 
-            securityProtocol: 
-            saslMechanism: 
+            securityProtocol: SASL_SSL
+            saslMechanism: SCRAM-SHA-512
         amq-streams-console:
           namespace: 
           subdomain: 
@@ -38,8 +38,8 @@ amqstreams:
             name: 
             namespace: 
             authentication:
-              saslMechanism: 
-              securityProtocol: 
+              saslMechanism: SASL_SSL
+              securityProtocol: SCRAM-SHA-512
             authorization: simple
         kafka-topics:
           kafka:
