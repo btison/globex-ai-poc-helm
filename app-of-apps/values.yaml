@@ -48,3 +48,23 @@ amqstreams:
   argocd:
     enabled: true
     syncwave: "1"
+
+keycloak:
+  applicationName: keycloak
+  applicationNamespace: openshift-gitops
+  destinationNamespace: keycloak
+  source:
+    repoUrl: 
+    targetRevision:
+    path:
+    helm:
+      values:
+        keycloak:
+          nameOverride: keycloak
+          route:
+            host:
+          ingress:
+            enabled: false
+  argocd:
+    enabled: true
+    syncwave: "1"
