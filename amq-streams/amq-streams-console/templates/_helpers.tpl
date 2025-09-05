@@ -77,16 +77,12 @@ argocd.argoproj.io/sync-wave: "{{ .Values.argocd.syncwave.console }}"
 {{- end }}
 
 {{/*
-ArgoCD Syncwave
+Namespace
 */}}
-{{- define "amq-streams-console-namespace.argocd-syncwave" -}}
-{{- if and (.Values.argocd) (.Values.argocd.syncwave) }}
-{{- if (.Values.argocd.syncwave.enabled) -}}
-argocd.argoproj.io/sync-wave: "{{ .Values.argocd.syncwave.namespace }}"
+{{- define "kafka.namespace" -}}
+{{- if .Values.namespace }}
+{{- .Values.namespace }}
 {{- else }}
-{{- "{}" }}
-{{- end }}
-{{- else }}
-{{- "{}" }}
+{{- .Release.Namespace }}
 {{- end }}
 {{- end }}

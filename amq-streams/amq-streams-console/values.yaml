@@ -4,11 +4,11 @@ namespace:
 subdomain:
 
 kafka:
-  name: kafka
-  namespace: kafka
+  name: 
+  namespace: 
   authentication:
-    saslMechanism: SCRAM-SHA-512
-  authorization: simple
+    saslMechanism: 
+  authorization: 
 
 argocd:
   syncwave:

@@ -17,7 +17,7 @@ spec:
       type: openshift-monitoring
   kafkaClusters:
     - name: {{ .Values.kafka.name }}
-      namespace: {{ .Values.kafka.namespace }}
+      namespace: {{ include "kafka.namespace" . }}
       listener: tls
       metricsSource: ocp-prometheus
       properties:

@@ -35,7 +35,7 @@ amqstreams:
           namespace: 
           subdomain: 
           kafka:
-            name: 
+            name: kafka
             namespace: 
             authentication:
               saslMechanism: SASL_SSL
@@ -44,7 +44,7 @@ amqstreams:
         kafka-topics:
           kafka:
             namespace: 
-            cluster: 
+            cluster: kafka
   argocd:
     enabled: true
     syncwave: "1"
