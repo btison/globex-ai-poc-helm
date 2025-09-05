@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.mongodb.applicationName }}
+  namespace: {{ .Values.mongodb.applicationNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "{{ .Values.mongodb.argocd.syncwave }}"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/foreground
+spec:
+  destination:
+    name: ""
+    namespace: {{ .Values.mongodb.destinationNamespace }}
+    server: 'https://kubernetes.default.svc'
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 10
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+  source:
+    repoURL: {{ .Values.mongodb.source.repoUrl }}
+    chart: {{ .Values.mongodb.source.chart }}
+    targetRevision: {{ .Values.mongodb.source.targetRevision }}
+    helm:
+      valuesObject:
+        {{ toYaml .Values.mongodb.source.helm.values | nindent 8 }}

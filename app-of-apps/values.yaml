@@ -68,3 +68,38 @@ keycloak:
   argocd:
     enabled: true
     syncwave: "1"
+
+mongodb:
+  applicationName: mongodb
+  applicationNamespace: openshift-gitops
+  destinationNamespace: mongodb
+  source:
+    repoUrl: 
+    chart:
+    targetRevision:
+    helm:
+      values:
+        global:
+          security:
+            allowInsecureImages: true
+        architecture: standalone
+        image:
+          registry: quay.io
+          repository: btison/mongodb
+          tag: 8.0.12-debian-12-r2
+        podSecurityContext:
+          enabled: false
+          fsGroup: ""
+        containerSecurityContext:
+          runAsUser: 1001080001
+        auth:
+          rootPassword:
+          usernames:
+            - globex
+          passwords:
+            - globex
+          databases:
+            - reviews
+  argocd:
+    enabled: true
+    syncwave: "1"
