@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.amqstreams.applicationName }}
+  namespace: {{ .Values.amqstreams.applicationNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "{{ .Values.amqstreams.argocd.syncwave }}"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/foreground
+spec:
+  destination:
+    name: ""
+    namespace: {{ .Values.amqstreams.destinationNamespace }}
+    server: 'https://kubernetes.default.svc'
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 10
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+  source:
+    repoURL: {{ .Values.amqstreams.source.repoUrl }}
+    targetRevision: {{ .Values.amqstreams.source.targetRevision }}
+    path: {{ .Values.amqstreams.source.path }}
+    helm:
+      valuesObject:
+        {{ toYaml .Values.amqstreams.source.helm.values | nindent 8 }}

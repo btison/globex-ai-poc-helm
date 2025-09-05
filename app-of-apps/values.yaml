@@ -1,0 +1,50 @@
+amqstreams:
+  applicationName:
+  applicationNamespace:
+  destinationNamespace:
+  source:
+    repoUrl:
+    targetRevision:
+    path:
+    helm:
+      values:
+        kafka:
+          enabled: 
+        console:
+          enabled: 
+
+        kafka-broker:
+          namespace:
+          nameOverride: 
+          kafka:
+            controller:
+              enabled: true
+            listener:
+              external:
+                tls:
+                  secret:
+                    value:
+                      crt: 
+                      key: 
+          authentication:
+            clientId:
+            clientSecret: 
+            securityProtocol: 
+            saslMechanism: 
+        amq-streams-console:
+          namespace: 
+          subdomain: 
+          kafka:
+            name: 
+            namespace: 
+            authentication:
+              saslMechanism: 
+              securityProtocol: 
+            authorization: simple
+        kafka-topics:
+          kafka:
+            namespace: 
+            cluster: 
+  argocd:
+    enabled: true
+    syncwave: "1"
