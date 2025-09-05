@@ -85,3 +85,14 @@ argocd.argoproj.io/sync-wave: "{{ .Values.argocd.syncwave }}"
 {{- "{}" }}
 {{- end }}
 {{- end }}
+
+{{/*
+Namespace
+*/}}
+{{- define "kafka.namespace" -}}
+{{- if .Values.kafka.namespace }}
+{{- .Values.kafka.namespace }}
+{{- else }}
+{{- .Release.Namespace }}
+{{- end }}
+{{- end }}

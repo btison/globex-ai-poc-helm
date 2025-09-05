@@ -1,5 +1,5 @@
 kafka:
-  cluster: kafka
+  cluster:
   replicationFactor: 3
   topics:
     - name: test

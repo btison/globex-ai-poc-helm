@@ -4,9 +4,7 @@ apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaTopic
 metadata:
   name: {{ .name | replace "_" "-" }}
-  {{- if $.Values.kafka.namespace }}
-  namespace: {{ $.Values.kafka.namespace }}
-  {{- end }}
+  namespace: {{ include "kafka.namespace" $ }}
   labels:
     strimzi.io/cluster: {{ $.Values.kafka.cluster }}
     {{- include "kafka-topics.labels" $ | nindent 4 }}
