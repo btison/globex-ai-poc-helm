@@ -103,3 +103,15 @@ mongodb:
   argocd:
     enabled: true
     syncwave: "1"
+
+mailserver:
+  applicationName: mail-server
+  applicationNamespace: openshift-gitops
+  destinationNamespace: mail-server
+  source:
+    repoUrl:
+    targetRevision:
+    path:
+  argocd:
+    enabled: true
+    syncwave: "1"
