@@ -23,3 +23,7 @@ amq-streams-console:
     syncwave:
       enabled: true
       console: "1"
+kafka-connect:
+  argocd:
+    enabled: true
+    syncwave: "0"
