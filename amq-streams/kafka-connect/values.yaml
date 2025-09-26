@@ -1,0 +1,32 @@
+version: 4.0.0
+image: quay.io/cloud-architecture-workshop/kafka-connect-image:kafka-3.9-debezium-postgres-2.6.2.Final
+replicas: 1
+topicPrefix: globex-ai-cdc
+keyConverter: org.apache.kafka.connect.json.JsonConverter
+valueConverter: org.apache.kafka.connect.json.JsonConverter
+replicationFactor: 3
+authentication:
+  passwordKey: clientSecret
+resources:
+  requests:
+    cpu: 100m
+    memory: 250Mi
+  limits:
+    cpu: 500m
+    memory: 1Gi
+livenessProbe:
+  initialDelaySeconds: 45
+  timeoutSeconds: 5
+readinessProbe:
+  initialDelaySeconds: 15
+  timeoutSeconds: 5
+
+kafka:
+  bootstrapServer: ""
+  securityProtocol: ""
+  saslMechanism: ""
+  clientId: ""
+
+argocd:
+  enabled: true
+  syncwave: "0"

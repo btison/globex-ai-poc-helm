@@ -1,0 +1,45 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: {{ include "kafka-connect.name" . }}
+  annotations:
+    {{- include "kafka-connect.annotations" . | nindent 4 }}    
+spec:
+  version: {{ .Values.version }}
+  image: {{ .Values.image }}
+  replicas: {{ .Values.replicas }}
+  bootstrapServers: {{ include "kafka.bootstrap-server" . }}
+  config:
+    group.id: {{ include "kafka-connect.name" . }}
+    offset.storage.topic: '{{ .Values.topicPrefix }}.{{ include "kafka-connect.name" . }}-offsets'
+    config.storage.topic: '{{ .Values.topicPrefix }}.{{ include "kafka-connect.name" . }}-configs'
+    status.storage.topic: '{{ .Values.topicPrefix }}.{{ include "kafka-connect.name" . }}-status'
+    key.converter: {{ .Values.keyConverter }}
+    value.converter: {{ .Values.valueConverter }}
+    key.converter.schemas.enable: false
+    value.converter.schemas.enable: false
+    config.storage.replication.factor: {{ .Values.replicationFactor }}
+    offset.storage.replication.factor: {{ .Values.replicationFactor }}
+    status.storage.replication.factor: {{ .Values.replicationFactor }}
+    topic.creation.enable: true
+    default.replication.factor: {{ .Values.replicationFactor }}
+  {{- if ( include "kafka.authentication" .) }}
+  authentication:
+    passwordSecret:
+      password: {{ .Values.authentication.passwordKey }}
+      secretName: {{ include "kafka.client-connection-secret.name" . }}
+    username: {{ include "kafka.client-id" . }}
+    type: {{ include "kafka-connect.authentication-type" . }}
+  {{- end }}
+  {{- if (include "kafka-connect.tls" .) }}
+  tls:
+    trustedCertificates: []
+  {{- end }}
+  resources:
+    {{- toYaml .Values.resources | nindent 4 }}
+  livenessProbe:
+    {{- toYaml .Values.livenessProbe | nindent 4 }}
+  readinessProbe:
+    {{- toYaml .Values.readinessProbe | nindent 4 }}
+  jvmOptions:
+    gcLoggingEnabled: false

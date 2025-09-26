@@ -15,7 +15,7 @@ amqstreams:
   destinationNamespace: kafka
   source:
     repoUrl: https://github.com/btison/globex-ai-poc-helm.git
-    targetRevision: main
+    targetRevision: debezium
     path: amq-streams
     helm:
       values:
@@ -56,6 +56,10 @@ amqstreams:
           kafka:
             namespace: *kafkanamespace
             cluster: *kafka
+        kafka-connect:
+          kafka: 
+            <<: *kafkacluster            
+            
   argocd:
     enabled: true
     syncwave: "1"
