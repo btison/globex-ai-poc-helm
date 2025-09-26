@@ -1,5 +1,5 @@
 version: 4.0.0
-image: quay.io/cloud-architecture-workshop/kafka-connect-image:kafka-3.9-debezium-postgres-2.6.2.Final
+image: registry.redhat.io/amq-streams/kafka-40-rhel9@sha256:4bdc5d9e8a800e2abc972b1cc09ca8dec91ebce34616e43fe16df86f02ec9d0f
 replicas: 1
 topicPrefix: globex-ai-cdc
 keyConverter: org.apache.kafka.connect.json.JsonConverter
