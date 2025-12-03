@@ -1,0 +1,232 @@
+global:
+  # -- Overrides the Docker registry globally for all images
+  imageRegistry: null
+
+nameOverride: grafana
+
+enabled: true
+
+replicas: 1
+
+useStatefulSet: false
+
+image:
+  # -- The Docker registry
+  registry: docker.io
+  # -- Docker image repository
+  repository: grafana/grafana
+  # Overrides the Grafana image tag whose default is the chart appVersion
+  tag: "12.3.0"
+  sha: ""
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  name:
+
+podSecurityContext: 
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  seccompProfile:
+    type: RuntimeDefault
+
+podPortName: grafana
+gossipPortName: gossip
+
+service:
+  enabled: true
+  type: ClusterIP
+  port: 8080
+  targetPort: 3000
+  annotations: {}
+  labels: {}
+  portName: service
+  # Adds the appProtocol field to the service. This allows to work with istio protocol selection. Ex: "http" or "tcp"
+  appProtocol: ""
+  sessionAffinity: ""
+
+route:
+  enabled: true
+  host: 
+  tlsEnabled: true
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+
+resources: {}
+
+readinessProbe:
+  httpGet:
+    path: /api/health
+    port: 3000
+
+livenessProbe:
+  httpGet:
+    path: /api/health
+    port: 3000
+  initialDelaySeconds: 60
+  timeoutSeconds: 30
+  failureThreshold: 10
+
+createConfigmap: true
+
+# Administrator credentials when not using an existing secret (see below)
+adminUser: admin
+# adminPassword: strongpassword
+
+# Use an existing secret for the admin user.
+admin:
+  ## Name of the secret. Can be templated.
+  existingSecret: ""
+  userKey: admin-user
+  passwordKey: admin-password
+
+grafana.ini:
+  paths:
+    data: /var/lib/grafana/
+    logs: /var/log/grafana
+    plugins: /var/lib/grafana/plugins
+    provisioning: /etc/grafana/provisioning
+  analytics:
+    check_for_updates: true
+  log:
+    mode: console
+  grafana_net:
+    url: https://grafana.net
+  server:
+    domain: "{{ if (and .Values.route.enabled .Values.route.host) }}{{ tpl (.Values.route.host) . }}{{ else }}''{{ end }}"
+
+env: {}
+
+initChownData:
+  ## If false, data ownership will not be reset at startup
+  ## This allows the grafana-server to be run with an arbitrary user
+  ##
+  enabled: true
+
+  ## initChownData container image
+  ##
+  image:
+    # -- The Docker registry
+    registry: docker.io
+    repository: library/busybox
+    tag: "1.31.1"
+    sha: ""
+    pullPolicy: IfNotPresent
+
+  ## initChownData resource requests and limits
+  ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ##
+  resources: {}
+  #  limits:
+  #    cpu: 100m
+  #    memory: 128Mi
+  #  requests:
+  #    cpu: 100m
+  #    memory: 128Mi
+  securityContext:
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+    runAsUser: 0
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      add:
+        - CHOWN
+      drop:
+        - ALL
+
+dashboardProviders: {}
+
+dashboards: {}
+
+enableServiceLinks: true
+
+persistence:
+  type: pvc
+  enabled: false
+  # storageClassName: default
+  ## (Optional) Use this to bind the claim to an existing PersistentVolume (PV) by name.
+  volumeName: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+  # annotations: {}
+  finalizers:
+    - kubernetes.io/pvc-protection
+  # selectorLabels: {}
+  ## Sub-directory of the PV to mount. Can be templated.
+  # subPath: ""
+  ## Name of an existing PVC. Can be templated.
+  # existingClaim:
+  ## Extra labels to apply to a PVC.
+  extraPvcLabels: {}
+  disableWarning: false
+
+  ## If persistence is not enabled, this allows to mount the
+  ## local storage in-memory to improve performance
+  ##
+  inMemory:
+    enabled: false
+    ## The maximum usage on memory medium EmptyDir would be
+    ## the minimum value between the SizeLimit specified
+    ## here and the sum of memory limits of all containers in a pod
+    ##
+    # sizeLimit: 300Mi
+
+  ## If 'lookupVolumeName' is set to true, Helm will attempt to retrieve
+  ## the current value of 'spec.volumeName' and incorporate it into the template.
+  lookupVolumeName: true
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Loki
+        uid: loki
+        type: loki
+        url: http://{{ .Release.Name }}-loki-gateway
+        isDefault: false
+      - name: Mimir
+        uid: prom
+        type: prometheus
+        url: http://{{ .Release.Name }}-mimir-nginx/prometheus
+        isDefault: true
+      - name: Tempo
+        uid: tempo
+        type: tempo
+        url: http://{{ .Release.Name }}-tempo-query-frontend:3200
+        isDefault: false
+        jsonData:
+          tracesToLogsV2:
+            datasourceUid: loki
+          lokiSearch:
+            datasourceUid: loki
+          tracesToMetrics:
+            datasourceUid: prom
+          serviceMap:
+            datasourceUid: prom
+
+rbac:
+  create: true
+  ## Use an existing ClusterRole/Role (depending on rbac.namespaced false/true)
+  # useExistingRole: name-of-some-role
+  # useExistingClusterRole: name-of-some-clusterRole
+  pspEnabled: false
+  pspUseAppArmor: false
+  namespaced: false
+  extraRoleRules: []
+  # - apiGroups: []
+  #   resources: []
+  #   verbs: []
+  extraClusterRoleRules: []
+  # - apiGroups: []
+  #   resources: []
+  #   verbs: []

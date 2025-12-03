@@ -1,0 +1,206 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "grafana.name" . }}
+  namespace: {{ include "grafana.namespace" . }}
+  labels:
+    {{- include "grafana.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "grafana.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        {{- include "grafana.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include "grafana.configData" . | sha256sum }}
+        {{- if .Values.dashboards }}
+        checksum/dashboards-json-config: {{ include (print $.Template.BasePath "/dashboards-json-configmap.yaml") . | sha256sum }}
+        {{- end }}
+        {{- if and (or (and (not .Values.admin.existingSecret) (not .Values.env.GF_SECURITY_ADMIN_PASSWORD__FILE) (not .Values.env.GF_SECURITY_ADMIN_PASSWORD)) (and .Values.ldap.enabled (not .Values.ldap.existingSecret))) (not .Values.env.GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION) }}
+        checksum/secret: {{ include "grafana.secretsData" . | sha256sum }}
+        {{- end }}
+        {{- if .Values.envRenderSecret }}
+        checksum/secret-env: {{ tpl (toYaml .Values.envRenderSecret) . | sha256sum }}
+        {{- end }}
+        kubectl.kubernetes.io/default-container: {{ .Chart.Name }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- $sts := list "sts" "StatefulSet" "statefulset" }}
+      {{- $root := . }}
+      serviceAccountName: {{ include "grafana.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      enableServiceLinks: {{ .Values.enableServiceLinks }}
+      containers:
+        - name: grafana
+          {{- $registry := .Values.global.imageRegistry | default .Values.image.registry }}
+          image: "{{ $registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: "/etc/grafana/grafana.ini"
+              subPath: grafana.ini
+            - name: storage
+              mountPath: "/var/lib/grafana"
+              {{- with .Values.persistence.subPath }}
+              subPath: {{ tpl . $root }}
+              {{- end }}
+            {{- with .Values.dashboards }}
+            {{- range $provider, $dashboards := . }}
+            {{- range $key, $value := $dashboards }}
+            {{- if (or (hasKey $value "json") (hasKey $value "file")) }}
+            - name: dashboards-{{ $provider }}
+              mountPath: "/var/lib/grafana/dashboards/{{ $provider }}/{{ $key }}.json"
+              subPath: "{{ $key }}.json"
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.dashboardsConfigMaps }}
+            {{- range (keys . | sortAlpha) }}
+            - name: dashboards-{{ . }}
+              mountPath: "/var/lib/grafana/dashboards/{{ . }}"
+            {{- end }}
+            {{- end }}
+            {{- with .Values.datasources }}
+            {{- $datasources := . }}
+            {{- range (keys . | sortAlpha) }}
+            {{- if (or (hasKey (index $datasources .) "secret")) }} {{/*check if current datasource should be handeled as secret */}}
+            - name: config-secret
+              mountPath: "/etc/grafana/provisioning/datasources/{{ . }}"
+              subPath: {{ . | quote }}
+            {{- else }}
+            - name: config
+              mountPath: "/etc/grafana/provisioning/datasources/{{ . }}"
+              subPath: {{ . | quote }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.dashboardProviders }}
+            {{- range (keys . | sortAlpha) }}
+            - name: config
+              mountPath: "/etc/grafana/provisioning/dashboards/{{ . }}"
+              subPath: {{ . | quote }}
+            {{- end }}
+            {{- end }}
+          ports:
+            - name: {{ .Values.podPortName }}
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+            - name: {{ .Values.gossipPortName }}-tcp
+              containerPort: 9094
+              protocol: TCP
+            - name: {{ .Values.gossipPortName }}-udp
+              containerPort: 9094
+              protocol: UDP
+            - name: profiling
+              containerPort: 6060
+              protocol: TCP
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            {{- if and (not .Values.env.GF_SECURITY_ADMIN_USER) (not .Values.env.GF_SECURITY_ADMIN_USER__FILE) (not .Values.env.GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION) }}
+            - name: GF_SECURITY_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ (tpl .Values.admin.existingSecret .) | default (include "grafana.name" .) }}
+                  key: {{ .Values.admin.userKey | default "admin-user" }}
+            {{- end }}
+            {{- if and (not .Values.env.GF_SECURITY_ADMIN_PASSWORD) (not .Values.env.GF_SECURITY_ADMIN_PASSWORD__FILE) (not .Values.env.GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION) }}
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ (tpl .Values.admin.existingSecret .) | default (include "grafana.name" .) }}
+                  key: {{ .Values.admin.passwordKey | default "admin-password" }}
+            {{- end }}
+            {{- if .Values.plugins }}
+            - name: GF_INSTALL_PLUGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "grafana.name" . }}
+                  key: plugins
+            {{- end }}
+            - name: GF_PATHS_DATA
+              value: {{ (get .Values "grafana.ini").paths.data }}
+            - name: GF_PATHS_LOGS
+              value: {{ (get .Values "grafana.ini").paths.logs }}
+            - name: GF_PATHS_PLUGINS
+              value: {{ (get .Values "grafana.ini").paths.plugins }}
+            - name: GF_PATHS_PROVISIONING
+              value: {{ (get .Values "grafana.ini").paths.provisioning }}
+            {{- if (.Values.resources.limits).memory }}
+            - name: GOMEMLIMIT
+              valueFrom:
+                resourceFieldRef:
+                  divisor: "1"
+                  resource: limits.memory
+            {{- end }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "grafana.name" . }}
+        {{- $createConfigSecret := eq (include "grafana.shouldCreateConfigSecret" .) "true" -}}
+        {{- if and .Values.createConfigmap $createConfigSecret }}
+        - name: config-secret
+          secret:
+            secretName: {{ include "grafana.fullname" . }}-config-secret
+        {{- end }}
+        {{- if .Values.dashboards }}
+        {{- range (keys .Values.dashboards | sortAlpha) }}
+        - name: dashboards-{{ . }}
+          configMap:
+            name: {{ include "grafana.fullname" $ }}-dashboards-{{ . }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.dashboardsConfigMaps }}
+        {{- range $provider, $name := .Values.dashboardsConfigMaps }}
+        - name: dashboards-{{ $provider }}
+          configMap:
+            name: {{ tpl $name $root }}
+        {{- end }}
+        {{- end }}
+        {{- if and .Values.persistence.enabled (eq .Values.persistence.type "pvc") }}
+        - name: storage
+          persistentVolumeClaim:
+            claimName: {{ tpl (.Values.persistence.existingClaim | default (include "grafana.fullname" .)) . }}
+        {{- else if and .Values.persistence.enabled (has .Values.persistence.type $sts) }}
+        {{/* nothing */}}
+        {{- else }}
+        - name: storage
+          {{- if .Values.persistence.inMemory.enabled }}
+          emptyDir:
+            medium: Memory
+            {{- with .Values.persistence.inMemory.sizeLimit }}
+            sizeLimit: {{ . }}
+            {{- end }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- end }}
