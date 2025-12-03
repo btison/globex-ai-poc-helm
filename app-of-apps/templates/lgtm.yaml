@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.lgtm.applicationName }}
+  namespace: {{ .Values.lgtm.applicationNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "{{ .Values.lgtm.argocd.syncwave }}"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/foreground
+spec:
+  destination:
+    name: ""
+    namespace: {{ .Values.lgtm.destinationNamespace }}
+    server: 'https://kubernetes.default.svc'
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 10
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+  source:
+    repoURL: {{ .Values.lgtm.source.repoUrl }}
+    targetRevision: {{ .Values.lgtm.source.targetRevision }}
+    path: {{ .Values.lgtm.source.path }}
+    helm:
+      valuesObject:
+        {{ toYaml .Values.lgtm.source.helm.values | nindent 8 }}
