@@ -47,8 +47,7 @@ compression:
 
 grpcMaxQueryResponseSizeBytes: "209715200"
 
-livenessProbe:
-  null
+livenessProbe: null
 readinessProbe:
   httpGet:
     path: /ready
@@ -225,6 +224,18 @@ mimir:
       remote_timeout: null
     ingester:
       push_grpc_method_enabled: null
+
+runtimeConfig: {}
+
+service:
+  annotations: {}
+  labels: {}
+  # -- https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/
+  internalTrafficPolicy: Cluster
+  type: ClusterIP
+  extraPorts: []
+  # -- https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution
+  trafficDistribution: ""
 
 kafka:
   enabled: false
