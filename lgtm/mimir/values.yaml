@@ -5,7 +5,7 @@ image:
   repository: grafana/mimir
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "r365-7df8ab14"
+  tag: "r354-d48a2220"
 
 podManagementPolicy: Parallel
 
