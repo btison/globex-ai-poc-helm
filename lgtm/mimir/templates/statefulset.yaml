@@ -22,8 +22,18 @@ spec:
       kind: PersistentVolumeClaim
       metadata:
         name: {{ .name }}
+        {{- if .annotations }}
+        annotations:
+          {{- toYaml .annotations | nindent 10 }}
+        {{- end }}
       spec:
+        {{- if .storageClass }}
+        {{- if (eq "-" .storageClass) }}
         storageClassName: ""
+        {{- else }}
+        storageClassName: {{ .storageClass }}
+        {{- end }}
+        {{- end }}
         accessModes:
           {{- toYaml .accessModes | nindent 10 }}
         resources:
