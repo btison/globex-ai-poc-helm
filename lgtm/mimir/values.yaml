@@ -60,6 +60,9 @@ resources:
 
 mimir:
   config: |
+
+    multitenancy_enabled: false
+
     usage_stats:
       installation_mode: helm
 
