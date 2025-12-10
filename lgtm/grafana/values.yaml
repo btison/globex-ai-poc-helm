@@ -197,7 +197,7 @@ datasources:
       - name: Mimir
         uid: prom
         type: prometheus
-        url: http://{{ .Release.Name }}-mimir-nginx/prometheus
+        url: http://mimir:8080/prometheus
         isDefault: true
       - name: Tempo
         uid: tempo
