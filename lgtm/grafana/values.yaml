@@ -202,7 +202,7 @@ datasources:
       - name: Tempo
         uid: tempo
         type: tempo
-        url: http://{{ .Release.Name }}-tempo-query-frontend:3200
+        url: http://tempo:3200
         isDefault: false
         jsonData:
           tracesToLogsV2:
