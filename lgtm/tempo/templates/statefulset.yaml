@@ -84,7 +84,7 @@ spec:
         {{- end }}
         - mountPath: /conf
           name: tempo-conf
-        - mountPath: /tempo
+        - mountPath: /var/tempo
           name: storage
       {{- with .Values.securityContext }}
       securityContext:
