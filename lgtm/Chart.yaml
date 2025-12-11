@@ -11,3 +11,6 @@ dependencies:
   - name: mimir
     version: 0.1.0
     repository: file://mimir
+  - name: tempo
+    version: 0.1.0
+    repository: file://tempo
