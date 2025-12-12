@@ -8,6 +8,10 @@ dependencies:
   - name: grafana
     version: 0.1.0
     repository: file://grafana
+  - name: minio
+    version: 0.1.0
+    repository: file://minio
+    condition: minio.enabled
   - name: mimir
     version: 0.1.0
     repository: file://mimir

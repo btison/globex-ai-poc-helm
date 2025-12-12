@@ -80,7 +80,7 @@ mimir:
       s3:
         access_key_id: {{ .Values.minio.rootUser }}
         bucket_name: {{ include "mimir.minioBucketPrefix" . }}-ruler
-        endpoint: {{ template "minio.fullname" .Subcharts.minio }}.{{ .Release.Namespace }}.svc:{{ .Values.minio.service.port }}
+        endpoint: {{ .Values.minio.name }}.{{ .Release.Namespace }}.svc:{{ .Values.minio.service.port }}
         insecure: true
         secret_access_key: {{ .Values.minio.rootPassword }}
     {{- end }}
@@ -94,7 +94,7 @@ mimir:
       s3:
         access_key_id: {{ .Values.minio.rootUser }}
         bucket_name: {{ include "mimir.minioBucketPrefix" . }}-tsdb
-        endpoint: {{ template "minio.fullname" .Subcharts.minio }}.{{ .Release.Namespace }}.svc:{{ .Values.minio.service.port }}
+        endpoint: {{ .Values.minio.name }}.{{ .Release.Namespace }}.svc:{{ .Values.minio.service.port }}
         insecure: true
         secret_access_key: {{ .Values.minio.rootPassword }}
       {{- end }}
@@ -197,7 +197,7 @@ mimir:
       {{- if .Values.minio.enabled }}
       backend: s3
       s3:
-        endpoint: {{ template "minio.fullname" .Subcharts.minio }}.{{ .Release.Namespace }}.svc:{{ .Values.minio.service.port }}
+        endpoint: {{ .Values.minio.name }}.{{ .Release.Namespace }}.svc:{{ .Values.minio.service.port }}
         bucket_name: {{ include "mimir.minioBucketPrefix" . }}-ruler
         access_key_id: {{ .Values.minio.rootUser }}
         secret_access_key: {{ .Values.minio.rootPassword }}
@@ -245,38 +245,11 @@ kafka:
 
 minio:
   enabled: true
-  mode: standalone
-  rootUser: grafana-mimir
-  buckets:
-    - name: mimir-tsdb
-      policy: none
-      purge: false
-    - name: mimir-ruler
-      policy: none
-      purge: false
-  persistence:
-    size: 5Gi
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-  rootPassword: supersecret
-  # Changed the mc config path to '/tmp' from '/etc' as '/etc' is only writable by root and OpenShift will not permit this.
-  configPathmc: "/tmp/minio/mc/"
-  securityContext:
-    enabled: true
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
-    runAsUser: null
-    runAsGroup: null
-    fsGroup: null
-  containerSecurityContext:
-    readOnlyRootFilesystem: false
-    # allowPrivilegeEscalation: false
-    # capabilities:
-    #   drop:
-    #     - ALL
+  name: minio
+  rootUser: ""
+  service:
+    port: 9000
+  rootPassword: ""
 
 global:
   clusterDomain: cluster.local.

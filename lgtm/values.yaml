@@ -1,0 +1,18 @@
+minio:
+  enabled: true
+  nameOverride: minio
+  rootUser: grafana-mimir
+  rootPassword: supersecret
+  argocd:
+    enabled: true
+    syncwave: "-2"
+    hook:
+      syncwave: "-1"
+
+
+mimir:
+  minio:
+    enabled: true
+    name: minio
+    rootUser: grafana-mimir
+    rootPassword: supersecret
