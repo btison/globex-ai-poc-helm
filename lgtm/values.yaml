@@ -11,8 +11,12 @@ minio:
 
 
 mimir:
+  enabled: true
   minio:
     enabled: true
     name: minio
     rootUser: grafana-mimir
     rootPassword: supersecret
+
+tempo:
+  enabled: true
