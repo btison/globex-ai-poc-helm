@@ -20,3 +20,7 @@ dependencies:
     version: 0.1.0
     repository: file://tempo
     condition: tempo.enabled
+  - name: loki
+    version: 0.1.0
+    repository: file://loki
+    condition: loki.enabled

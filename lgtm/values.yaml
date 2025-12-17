@@ -9,7 +9,6 @@ minio:
     hook:
       syncwave: "-1"
 
-
 mimir:
   enabled: true
   minio:
@@ -19,4 +18,7 @@ mimir:
     rootPassword: supersecret
 
 tempo:
+  enabled: true
+
+loki:
   enabled: true
