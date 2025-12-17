@@ -192,7 +192,7 @@ datasources:
       - name: Loki
         uid: loki
         type: loki
-        url: http://{{ .Release.Name }}-loki-gateway
+        url: http://loki:3100
         isDefault: false
       - name: Mimir
         uid: prom
