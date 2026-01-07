@@ -1,0 +1,21 @@
+minio:
+  enabled: true
+  fullnameOverride: minio
+  nameOverride: minio
+  configPathmc: "/tmp/minio/mc/"
+  mode: standalone
+  persistence:
+    size: 5Gi
+  securityContext:
+    runAsUser: null
+    runAsGroup: null
+    fsGroup: null
+    fsGroupChangePolicy: null
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  users: []
