@@ -19,3 +19,13 @@ minio:
       cpu: 100m
       memory: 128Mi
   users: []
+  buckets:
+    - name: mimir-tsdb
+      policy: none
+      purge: false
+    - name: mimir-ruler
+      policy: none
+      purge: false
+  postJob:
+    annotations:
+      argocd.argoproj.io/sync-wave: "1"
