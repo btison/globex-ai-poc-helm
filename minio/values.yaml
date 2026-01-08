@@ -26,6 +26,6 @@ minio:
     - name: mimir-ruler
       policy: none
       purge: false
-  makeBucketJob:
+  postJob:
     annotations:
       argocd.argoproj.io/sync-wave: "1"
