@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ template "minio.fullname" .Subcharts.minio }}-post-job
+  name: {{ template "minio.fullname" .Subcharts.minio }}-post-install-job
   labels:
     app: {{ template "minio.name" .Subcharts.minio }}-post-job
     chart: {{ template "minio.chart" .Subcharts.minio }}
