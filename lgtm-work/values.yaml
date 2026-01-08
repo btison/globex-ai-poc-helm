@@ -173,3 +173,66 @@ tempo:
   extraVolumes:
     - name: storage
       emptyDir: {}
+
+mimir:
+  enabled: true
+  deploymentMode: monolithic
+
+  fullnameOverride: mimir
+  nameOverride: mimir
+
+  kafka:
+    enabled: false
+
+  mimir:
+    structuredConfig:
+      limits:
+        # Delete from storage metrics data older than 62 days.
+        compactor_blocks_retention_period: 62d
+      ingest_storage:
+        enabled: false
+        kafka:
+          address: null
+          topic: null
+          auto_create_topic_default_partitions: null
+      distributor:
+        remote_timeout: null
+      ingester:
+        push_grpc_method_enabled: true
+      multitenancy_enabled: false
+
+  monolithic:
+    replicas: 1
+    image:
+      repository: docker.io/grafana/mimir
+      tag: r354-d48a2220
+    persistentVolume:
+      enabled: true
+      size: "8Gi"
+    zoneAwareReplication:
+      enabled: false
+    compression:
+      enabled: true
+    podSecurityContext:
+      fsGroup: null
+      runAsGroup: null
+      runAsNonRoot: true
+      runAsUser: null
+      seccompProfile:
+        type: RuntimeDefault
+    topologySpreadConstraints: null
+
+  minio:
+    enabled: true
+    name: minio
+    service:
+      port: 9000
+    rootUser: minio
+    rootPassword: supersecret
+
+  alertmanager:
+    enabled: false
+    fallbackConfig: null
+
+  rollout_operator:
+    enabled: false
