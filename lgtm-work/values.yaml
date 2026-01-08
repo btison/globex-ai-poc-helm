@@ -32,7 +32,7 @@ grafana:
         - name: Mimir
           uid: prom
           type: prometheus
-          url: http://mimir:8080/prometheus
+          url: http://mimir-monolithic:8080/prometheus
           isDefault: true
         - name: Tempo
           uid: tempo
