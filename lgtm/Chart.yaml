@@ -25,3 +25,8 @@ dependencies:
     name: mimir-distributed
     repository: file://mimir
     version: 5.9.0-weekly.365
+  - alias: opentelemetry-collector
+    condition: opentelemetry-collector.enabled
+    name: opentelemetry-collector
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    version: 0.142.2

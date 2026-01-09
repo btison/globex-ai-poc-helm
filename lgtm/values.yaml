@@ -236,3 +236,63 @@ mimir:
 
   rollout_operator:
     enabled: false
+
+opentelemetry-collector:
+  enabled: true
+  nameOverride: otel
+  fullnameOverride: otel
+  image:
+    repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
+  mode: deployment
+  internalTelemetryViaOTLP:
+    traces:
+      enabled: false
+    metrics:
+      enabled: false
+    logs:
+      enabled: false
+  podSecurityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  config:
+    exporters:
+      debug:
+        verbosity: detailed
+        sampling_initial: 5
+        sampling_thereafter: 200
+
+      # Export logs to Loki (LGTM stack) via OTLP/HTTP
+      otlphttp/loki:
+        endpoint: http://loki:3100/otlp
+        headers:
+          X-Scope-OrgID: "anonymous"
+        tls:
+          insecure: true
+      
+      # Export metrics to Mimir (LGTM stack) via nginx gateway with OTLP
+      otlphttp/mimir:
+        endpoint: http://mimir-monolithic:8080/otlp
+        headers:
+          X-Scope-OrgID: "anonymous"
+        tls:
+          insecure: true
+      
+      # Export traces to Tempo (LGTM stack)
+      otlp/tempo:
+        endpoint: "tempo:4317"
+        tls:
+          insecure: true
+
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
