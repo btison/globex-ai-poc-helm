@@ -1,3 +1,54 @@
+grafana:
+  enabled: true
+  nameOverride: grafana
+  fullnameOverride: grafana
+  testFramework:
+    enabled: false
+  rbac:
+    create: false
+  service:
+    port: 8080
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: null
+    runAsGroup: null
+    fsGroup: null
+    seccompProfile:
+      type: RuntimeDefault
+  ingress:
+    enabled: true
+    annotations:
+      route.openshift.io/termination: edge
+    hosts: []
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Loki
+          uid: loki
+          type: loki
+          url: http://loki:3100
+          isDefault: false
+        - name: Mimir
+          uid: prom
+          type: prometheus
+          url: http://mimir:8080/prometheus
+          isDefault: true
+        - name: Tempo
+          uid: tempo
+          type: tempo
+          url: http://tempo:3200
+          isDefault: false
+          jsonData:
+            tracesToLogsV2:
+              datasourceUid: loki
+            lokiSearch:
+              datasourceUid: loki
+            tracesToMetrics:
+              datasourceUid: prom
+            serviceMap:
+              datasourceUid: prom
+
 minio:
   enabled: true
   nameOverride: minio

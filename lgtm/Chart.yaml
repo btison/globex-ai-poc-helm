@@ -5,9 +5,11 @@ type: application
 version: 0.1.0
 
 dependencies:
-  - name: grafana
-    version: 0.1.0
-    repository: file://grafana
+  - alias: grafana
+    condition: grafana.enabled
+    name: grafana
+    repository: https://grafana.github.io/helm-charts
+    version: 10.3.0
   - name: minio
     version: 0.1.0
     repository: file://minio
