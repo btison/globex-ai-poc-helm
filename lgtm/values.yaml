@@ -49,6 +49,104 @@ grafana:
             serviceMap:
               datasourceUid: prom
 
+loki:
+  enabled: true
+  fullnameOverride: loki
+  nameOverride: loki
+  test:
+    enabled: false
+  lokiCanary:
+    enabled: false
+  deploymentMode: SingleBinary
+  sidecar:
+    rules:
+      enabled: false
+  chunksCache:
+    enabled: false
+  resultsCache:
+    enabled: false
+  gateway:
+    enabled: false
+  ruler:
+    enabled: false
+
+  loki:
+    auth_enabled: false
+    commonConfig:
+      replication_factor: 1
+    podSecurityContext:
+      fsGroup: null
+      fsGroupChangePolicy: OnRootMismatch
+      runAsGroup: null
+      runAsNonRoot: true
+      runAsUser: null
+      seccompProfile:
+        type: RuntimeDefault
+    schemaConfig:
+      configs:
+        - from: 2024-04-01
+          store: tsdb
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: loki_index_
+            period: 24h
+    ingester:
+      chunk_encoding: snappy
+    tracing:
+      enabled: true
+    querier:
+      # Default is 4, if you have enough memory and CPU you can increase, reduce if OOMing
+      max_concurrent: 1
+    storage:
+      type: filesystem
+
+  singleBinary:
+    affinity: 
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution: []
+    replicas: 1
+    resources:
+      limits:
+        cpu: 3
+        memory: 4Gi
+      requests: null
+    extraEnv:
+      # Keep a little bit lower than memory limits
+      - name: GOMEMLIMIT
+        value: 3750MiB
+
+  # Enable minio for storage
+  minio:
+    enabled: false
+
+  # Zero out replica counts of other deployment modes
+  backend:
+    replicas: 0
+  read:
+    replicas: 0
+  write:
+    replicas: 0
+
+  ingester:
+    replicas: 0
+  querier:
+    replicas: 0
+  queryFrontend:
+    replicas: 0
+  queryScheduler:
+    replicas: 0
+  distributor:
+    replicas: 0
+  compactor:
+    replicas: 0
+  indexGateway:
+    replicas: 0
+  bloomCompactor:
+    replicas: 0
+  bloomGateway:
+    replicas: 0
+
 minio:
   enabled: true
   nameOverride: minio
@@ -69,7 +167,4 @@ mimir:
     rootPassword: supersecret
 
 tempo:
-  enabled: true
-
-loki:
   enabled: true
