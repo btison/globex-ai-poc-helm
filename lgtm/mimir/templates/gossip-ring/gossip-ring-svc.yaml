@@ -16,4 +16,4 @@ spec:
       targetPort: {{ include "mimir.memberlistBindPort" . }}
   publishNotReadyAddresses: true
   selector:
-    {{- include "mimir.gossipRingSelectorLabels" . | nindent 4 }}
+    {{- include "mimir.gossipRingSelectorLabels" (dict "ctx" .) | nindent 4 }}
