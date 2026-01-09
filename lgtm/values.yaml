@@ -147,6 +147,33 @@ loki:
   bloomGateway:
     replicas: 0
 
+tempo:
+  enabled: true
+  nameOverride: tempo
+  fullnameOverride: tempo
+  tempo:
+    reportingEnabled: false
+    extraVolumeMounts:
+      - mountPath: /var/tempo
+        name: storage
+    tag: main-74b857e
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      readOnlyRootFilesystem: false    
+  securityContext:
+    fsGroup: null
+    runAsGroup: null
+    runAsNonRoot: true
+    runAsUser: null
+    seccompProfile:
+      type: RuntimeDefault
+  extraVolumes:
+    - name: storage
+      emptyDir: {}
+
 minio:
   enabled: true
   nameOverride: minio
@@ -166,5 +193,3 @@ mimir:
     rootUser: grafana-mimir
     rootPassword: supersecret
 
-tempo:
-  enabled: true
