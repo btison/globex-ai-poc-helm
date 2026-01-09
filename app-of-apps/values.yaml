@@ -10,6 +10,7 @@ global:
       clientSecret: globex
 
 amqstreams:
+  enabled: true
   applicationName: amqstreams
   applicationNamespace: openshift-gitops
   destinationNamespace: kafka
@@ -61,6 +62,7 @@ amqstreams:
     syncwave: "1"
 
 keycloak:
+  enabled: true
   applicationName: keycloak
   applicationNamespace: openshift-gitops
   destinationNamespace: keycloak
@@ -81,6 +83,7 @@ keycloak:
     syncwave: "1"
 
 mongodb:
+  enabled: true
   applicationName: mongodb
   applicationNamespace: openshift-gitops
   destinationNamespace: mongodb
@@ -118,6 +121,7 @@ mongodb:
     syncwave: "1"
 
 mailserver:
+  enabled: true
   applicationName: mail-server
   applicationNamespace: openshift-gitops
   destinationNamespace: mail-server
@@ -130,6 +134,7 @@ mailserver:
     syncwave: "1"
 
 globexai:
+  enabled: true
   applicationName: globex-ai
   applicationNamespace: openshift-gitops
   destinationNamespace: globex-ai
@@ -272,6 +277,7 @@ globexai:
     syncwave: "2"
 
 lgtm:
+  enabled: true
   applicationName: lgtm
   applicationNamespace: openshift-gitops
   destinationNamespace: lgtm
@@ -282,7 +288,6 @@ lgtm:
     helm:
       values:
         grafana:
-          nameOverride: grafana
           route:
             host: 
   argocd:
@@ -290,6 +295,7 @@ lgtm:
     syncwave: "2"
 
 minio:
+  enabled: true
   applicationName: minio
   applicationNamespace: openshift-gitops
   destinationNamespace: lgtm

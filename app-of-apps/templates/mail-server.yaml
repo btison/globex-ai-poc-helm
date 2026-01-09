@@ -1,3 +1,4 @@
+{{- if .Values.mailserver.enabled }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -30,3 +31,4 @@ spec:
     repoURL: {{ .Values.mailserver.source.repoUrl }}
     targetRevision: {{ .Values.mailserver.source.targetRevision }}
     path: {{ .Values.mailserver.source.path }}
+{{- end }}
