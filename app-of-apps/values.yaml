@@ -287,4 +287,18 @@ lgtm:
             host: 
   argocd:
     enabled: true
+    syncwave: "2"
+
+minio:
+  applicationName: minio
+  applicationNamespace: openshift-gitops
+  destinationNamespace: lgtm
+  source:
+    repoUrl: https://github.com/btison/globex-ai-poc-helm.git
+    targetRevision: observability
+    path: minio
+    helm:
+      values: {}
+  argocd:
+    enabled: true
     syncwave: "1"
