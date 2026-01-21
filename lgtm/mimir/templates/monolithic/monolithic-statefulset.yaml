@@ -148,6 +148,7 @@ spec:
             - "-store-gateway.sharding-ring.prefix=collectors/"
             - "-store-gateway.sharding-ring.zone-awareness-enabled=false"
             {{- end }}
+            - "-ingester.ring.replication-factor={{ $rolloutZone.replicas }}"
             - "-server.grpc-max-concurrent-streams=500"
             {{- end }}
             - "-server.grpc.keepalive.max-connection-age=60s"
