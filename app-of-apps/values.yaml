@@ -206,6 +206,10 @@ globexai:
             clientSecret:
             scopes: mcp-audience
 
+          otel:
+            exporter:
+              endpoint: http://otel.lgtm.svc.cluster.local:4317
+
         review-summarizer:
           kafka:
             <<: *kafkacluster
