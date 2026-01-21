@@ -296,3 +296,15 @@ opentelemetry-collector:
             endpoint: 0.0.0.0:4317
           http:
             endpoint: 0.0.0.0:4318
+
+    service:
+      pipelines:
+        logs:
+          receivers: [otlp]
+          exporters: [otlphttp/loki]
+        metrics:
+          receivers: [otlp]
+          exporters: [otlphttp/mimir]
+        traces:
+          receivers: [otlp]
+          exporters: [otlp/tempo]
